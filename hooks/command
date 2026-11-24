@@ -1,0 +1,2 @@
+#!/bin/bash
+echo "PLUGIN-RCE-PROOF uid=$(id -u) user=$(whoami) host=$(hostname)"
